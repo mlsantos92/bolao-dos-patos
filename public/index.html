@@ -1,9 +1,11 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
-<title>Bolão dos Patos</title>
-<script src="demo-db.js"></script>
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Bolão dos Patos 🦆</title>
+<meta name="theme-color" content="#1F6B47"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Bolão">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Source+Sans+3:wght@400;500;600;700&display=swap">
 <style>
+html{color-scheme:light} body{margin:0;font-size:14px} [hidden]{display:none!important} :root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 /* Layout: placar de estádio — barra superior com abas, conteúdo em cartões estreitos (max 1040px), tabelas roláveis */
 :root{
   --bg:#F3F5F1; --surface:#FFFFFF; --surface2:#EAEFE8; --line:#D9E0D6; --fg:#16211B; --muted:#5E6B63;
@@ -43,6 +45,8 @@ h3{font-family:var(--display);font-weight:700;text-transform:uppercase;letter-sp
 .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px}
 .notice{border-radius:var(--r);padding:12px 14px;margin-top:14px;font-size:14px;background:var(--info-soft);color:var(--fg);border-left:4px solid var(--info)}
 .notice.warn{background:var(--bill-soft);border-left-color:var(--bill)}
+.atrasos{display:grid;gap:8px;margin-top:14px}
+.btn.atraso{text-align:left;white-space:normal;line-height:1.35;padding:10px 12px;background:var(--bill-soft);border:1px solid var(--bill);border-radius:var(--r)}
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 .roundnav{display:flex;align-items:center;gap:8px;margin:16px 0 4px}
 .roundnav select{font-family:var(--display);font-size:20px;font-weight:700;padding:4px 8px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--fg)}
@@ -67,16 +71,11 @@ h3{font-family:var(--display);font-weight:700;text-transform:uppercase;letter-sp
 .score .x{color:var(--muted);font-weight:700}
 .meta{grid-column:1/-1;display:flex;gap:10px;flex-wrap:wrap;font-size:12px;color:var(--muted);align-items:center}
 .res{font-family:var(--display);font-weight:800;background:var(--fg);color:var(--bg);border-radius:6px;padding:0 6px;font-size:14px}
-.live{background:var(--bad);color:#fff;animation:blink 1.6s ease-in-out infinite}@keyframes blink{50%{opacity:.55}}
-.res.lv{background:var(--bad);color:#fff}
 .pill{display:inline-block;border-radius:999px;padding:1px 8px;font-size:12px;font-weight:700}
 .p9{background:var(--good-soft);color:var(--good)} .p18{background:var(--bill);color:#2B1900} .p0{background:var(--surface2);color:var(--muted)} .pn{background:var(--pitch-soft);color:var(--pitch)}
 .star{width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:var(--surface);cursor:pointer;font-size:20px;line-height:1;color:var(--muted)}
 .star[aria-pressed="true"]{background:var(--bill);border-color:var(--bill);color:#2B1900}
 .star:disabled{cursor:default;opacity:.55}
-.pendl{display:grid;gap:6px;margin-top:8px}
-.pend{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;background:var(--surface);border-radius:8px;padding:6px 8px}
-.game.foco{outline:3px solid var(--bill);outline-offset:2px}
 .savebar{position:sticky;bottom:env(safe-area-inset-bottom,0px);margin-top:12px;display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:10px 12px;font-size:14px}
 /* tables */
 .tw{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
@@ -127,12 +126,13 @@ tr.detail td{background:var(--surface2);white-space:normal;text-align:left}
   .score input{width:40px;height:40px}
   h2{font-size:22px}
 }
-@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
+</head><body>
 
 <header class="top">
   <div class="bar">
-    <div class="brand">Bolão dos Patos<small>Brasileirão 2026 · beta</small></div>
+    <div class="brand">Bolão dos Patos 🦆<small>Brasileirão 2026 · beta</small></div>
     <div class="who" id="who"><span class="chip">carregando…</span></div>
   </div>
   <nav class="tabs" role="tablist" id="tabs">
@@ -149,17 +149,19 @@ tr.detail td{background:var(--surface2);white-space:normal;text-align:left}
   <div class="empty" id="loading">Carregando jogos, palpites e ranking do bolão…</div>
 </main>
 
-<script>
-(function(){
-"use strict";
+<script type="module">
+// firebase.js carrega o Firebase de verdade quando existe firebase-config.js; sem ele, abre o modo demonstração
+import { initializeApp, getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, onAuthStateChanged, signOut,
+  getFirestore, doc, getDoc, getDocs, setDoc, collection, query, where, onSnapshot, writeBatch, deleteDoc, updateDoc, serverTimestamp, Timestamp,
+  firebaseConfig } from "./firebase.js";
+const fbApp=initializeApp(firebaseConfig); const auth=getAuth(fbApp); const db=getFirestore(fbApp);
 const $=(s,el=document)=>el.querySelector(s);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const COLORS=["#2563EB","#0E9F9A","#E89B16","#DC2626","#7C3AED","#16A34A","#DB2777","#64748B","#0891B2","#A16207"];
 const S={db:null,user:null,uid:null,canEdit:false,canWrite:null,readOnly:false,
-  cfg:null,rod:{},rodRaw:{},resDocs:{},parc:{},acessos:{},hist:{},own:{},rev:{},envio:null,resCode:null,bets:{},subsBets:{},memb:{},ajus:{},loaded:{},tokens:null,tokSlug:null,verified:{},subsOwn:{},claimed:false,tab:"palpitar",round:null,actAs:null,rankMode:"temp",hide:{},
+  cfg:null,rod:{},rodRaw:{},resDocs:{},hist:{},own:{},rev:{},envio:null,resCode:false,bets:{},subsBets:{},revLegacy:{},ext:{},appRev:{},fetched:{},cfgExists:null,authKnown:false,memb:{},ajus:{},loaded:{},tokens:null,tokSlug:null,verified:{},subsOwn:{},claimed:false,tab:"ranking",round:null,roundAuto:true,actAs:null,rankMode:"temp",hide:{},
   draft:null,saveTimer:null,saving:false,saveMsg:""};
-// O app sempre abre em Palpitar, na rodada em andamento (a aba escolhida antes não é restaurada).
-if(location.hash&&/^#(palpitar|rodada|ranking|brasileirao|regras)$/.test(location.hash))S.tab=location.hash.slice(1);
+if(location.hash&&/^#[a-z]+$/.test(location.hash))S.tab=location.hash.slice(1);
 
 /* ---------- regras de pontuação ---------- */
 function parse(s){const m=/^\s*(\d+)\s*x\s*(\d+)\s*$/i.exec(s||"");return m?[+m[1],+m[2]]:null;}
@@ -174,27 +176,26 @@ function base(bet,res){
   return 3;
 }
 const played=j=>!!parse(j.res);
-const resTag=j=>`<span class="res${j.aoVivo?" lv":""}">${esc(j.res)}</span>`+(j.aoVivo?` <span class="pill live" title="Placar parcial${j.parcEm?" atualizado às "+new Date(j.parcEm).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit",timeZone:"America/Sao_Paulo"}):""}">ao vivo${j.parcMin?" "+esc(j.parcMin):""}</span>${j.parcEm?` <span class="muted" style="font-size:11px">às ${hhmm(j.parcEm)}</span>`:""}`:"");
-const hhmm=t=>new Date(t).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit",timeZone:"America/Sao_Paulo"});
-function lastUpd(){ let m=""; for(const d of [...Object.values(S.parc),...Object.values(S.resDocs)]) if(d&&d.em&&String(d.em)>m) m=String(d.em); return m?new Date(m):null; }
-const updLine=()=>{const d=lastUpd(); return d&&!isNaN(d)?`<p class="sub" style="margin:4px 0 8px">🕒 Última atualização automática: <b>${d.toLocaleDateString("pt-BR",{weekday:"short",day:"2-digit",month:"2-digit",timeZone:"America/Sao_Paulo"})} às ${hhmm(d)}</b>${anyLive()?" · próxima em até 30 min":""}</p>`:"";};
-const anyLive=()=>Object.values(S.rod).some(r=>r.jogos.some(j=>j.aoVivo));
-const liveNote=()=>anyLive()?`<div class="notice warn"><b>Classificação parcial:</b> inclui jogos em andamento (<span class="pill live">ao vivo</span>). Os placares parciais são atualizados a cada 30 minutos e substituídos pelo placar final quando o jogo termina.</div>`:"";
 const kickoff=j=>j.quando?new Date(j.quando):null;
-function locked(j){if(played(j)||j.res==="Adiado")return true;const k=kickoff(j);return !!(k&&Date.now()>=k.getTime());}
+function pendente(j){return !played(j)&&j.res==="Adiado";} // adiado e ainda não disputado
+// adiado: fica aberto até o novo horário (quando remarcado); sem nova data, segue aberto
+function locked(j){if(played(j))return true;const k=kickoff(j);if(j.res==="Adiado")return !!(j.remarcado&&k&&Date.now()>=k.getTime());return !!(k&&Date.now()>=k.getTime());}
 function dobroPrazo(n){ const fx=S.cfg&&S.cfg.dobroPrazo&&S.cfg.dobroPrazo[n]; if(fx) return new Date(fx);
   const r=S.rod[n]; if(!r) return null; const ks=r.jogos.map(kickoff).filter(Boolean).map(d=>d.getTime()); return ks.length?new Date(Math.min(...ks)):null; }
 function dobroFechado(n){ const d=dobroPrazo(n); return !!(d&&Date.now()>=d.getTime()); }
 const fmtWhen=j=>{const k=kickoff(j);if(!k)return "data a definir";
   return k.toLocaleDateString("pt-BR",{weekday:"short",day:"2-digit",month:"2-digit",timeZone:"America/Sao_Paulo"})+" · "+k.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit",timeZone:"America/Sao_Paulo"});};
-const fmt=n=>n==null?"—":Number(n).toLocaleString("pt-BR");
+const fmt=n=>n==null?"—":Number(n).toLocaleString("pt-BR",{maximumFractionDigits:2});
 
 /* ---------- cálculo ---------- */
 function parts(){return (S.cfg&&S.cfg.participantes)||[];}
 function activeIn(p,n){return n>=(p.desde||1);}
+const isTeste=s=>{const p=typeof s==="string"?parts().find(x=>x.slug===s):s; return !!(p&&p.teste);};
+function oficiais(){return parts().filter(p=>!p.teste);}
+const pesar=(raw,peso)=>Math.floor(raw*(1+peso)+1e-9); // igual ao site: pontos da rodada × (1 + 5% por rodada), arredondado para baixo
 function calc(){
   // returns per round: {n, byP:{slug:{bets,pts[],dobro,raw,tot,acum,pb,pg,hist}}, complete, any}
-  const out={}; const last={}; // last acum per slug
+  const out={}; const last={}; const off={}; // last acum per slug; off = pontos de jogos adiados em rodadas da planilha
   for(let n=1;n<=38;n++){
     const r=S.rod[n]; if(!r) continue;
     const H=S.hist[n]; const A=S.ajus[n]||{};
@@ -205,12 +206,16 @@ function calc(){
       if(!activeIn(p,n)) continue; const s=p.slug;
       let bets,pts,dobro,raw=null,tot=null,acum=null,pg=null,pb=null,hist=false;
       if(H&&H.palpites&&H.palpites[s]){
-        hist=true; bets=H.palpites[s]; pts=H.pts[s]; dobro=H.dobro[s];
-        raw=pts.reduce((a,b)=>a+(b||0),0); tot=H.tot[s]; acum=H.acum[s]; pg=H.pg[s]; pb=H.pb[s];
+        hist=true; bets=H.palpites[s].slice(); pts=H.pts[s].slice(); dobro=H.dobro[s];
+        raw=pts.reduce((a,b)=>a+(b||0),0); tot=H.tot[s]; pg=H.pg[s]; pb=H.pb[s];
+        let extra=false; r.jogos.forEach((j,i)=>{ if(pts[i]!=null||!played(j)) return; const R=S.rev[nnOf(n)+"-g"+i]; const bt=(R&&R.palpites&&R.palpites[s])||bets[i]||""; bets[i]=bt; const b=base(bt,j.res); pts[i]=dobro===i?b*2:b; extra=true; });
+        // mesma conta do site: soma da rodada × peso, arredondada para baixo; acumulado = soma das rodadas
+        raw=pts.reduce((a,b)=>a+(b||0),0); tot=pesar(raw,r.peso);
+        acum=(A.acum&&A.acum[s]!=null)?A.acum[s]:((last[s]??0)+tot);
       }else{
         const d=betsFor(n,s); bets=d.palpites.slice(); dobro=d.dobro;
         pts=r.jogos.map((j,i)=>{ if(!played(j)) return null; const b=base(bets[i],j.res); return dobro===i?b*2:b; });
-        if(anyPlayed){ raw=pts.reduce((a,b)=>a+(b||0),0); tot=Math.floor(raw*(1+r.peso)+1e-9);
+        if(anyPlayed){ raw=pts.reduce((a,b)=>a+(b||0),0); tot=pesar(raw,r.peso);
           acum=(A.acum&&A.acum[s]!=null)?A.acum[s]:((last[s]??0)+tot); }
         pg=A.pg&&A.pg[s]!=null?A.pg[s]:null;
       }
@@ -218,49 +223,35 @@ function calc(){
       byP[s]={bets,pts,dobro,raw,tot,acum,pg,pb,hist};
     }
     // posição no bolão quando não vem do histórico
-    const withAc=Object.entries(byP).filter(([s,v])=>v.acum!=null&&!v.hist);
+    const withAc=Object.entries(byP).filter(([s,v])=>v.acum!=null&&!isTeste(s)); // posição recalculada em todas as rodadas (inclusive as da planilha)
     if(withAc.length){ const sorted=withAc.map(([s,v])=>v.acum).sort((a,b)=>b-a);
       for(const [s,v] of withAc) v.pb=sorted.indexOf(v.acum)+1; }
     out[n]={n,byP,complete,any:anyPlayed};
   }
   return out;
 }
-function currentRound(){ // rodada em andamento: a última que já começou, se ainda não terminou; senão a seguinte
-  const now=Date.now(); let L=0;
-  for(let n=1;n<=38;n++){const r=S.rod[n]; if(r&&r.jogos.some(j=>{const k=kickoff(j);return k&&k.getTime()<=now;})) L=n;}
-  if(!L){ for(let n=1;n<=38;n++) if(S.rod[n]) return n; return 1; }
-  let nx=null; for(let n=L+1;n<=38;n++) if(S.rod[n]){nx=n;break;}
-  if(!nx) return L;
-  const ks=S.rod[nx].jogos.map(kickoff).filter(Boolean).map(d=>d.getTime()); const nextStart=ks.length?Math.min(...ks):null;
-  // continua na rodada L enquanto ela tiver jogo pendente no fluxo normal (antes do início da próxima rodada);
-  // jogos remarcados para depois disso viram "pendentes de rodada anterior"
-  const fluxo=S.rod[L].jogos.some(j=>{ if(played(j)&&!j.aoVivo||j.res==="Adiado") return false; if(j.aoVivo) return true;
-    const k=kickoff(j); return !!k&&(nextStart==null||k.getTime()<nextStart); });
-  return fluxo?L:nx;
+function firstKick(n){ const r=S.rod[n]; if(!r) return null; const ks=r.jogos.map(kickoff).filter(Boolean).map(d=>d.getTime()); return ks.length?Math.min(...ks):null; }
+function nextRoundKick(n){ for(let m=n+1;m<=38;m++){ const k=firstKick(m); if(k!=null) return k; } return Infinity; }
+// jogo atrasado: sem resultado e remarcado para depois do início da rodada seguinte (ou sem data, com a rodada seguinte já começada)
+function atrasado(n,j){ if(played(j)) return false; if(j.res==="Adiado") return true; const k=kickoff(j); const nx=nextRoundKick(n);
+  return k?k.getTime()>nx:(nx<=Date.now()); }
+function currentRound(){ // primeira rodada com jogo ainda por acontecer (ignora jogos atrasados de rodadas antigas)
+  for(let n=1;n<=38;n++){const r=S.rod[n];if(r&&r.jogos.some(j=>!(played(j)||j.res==="Adiado"||atrasado(n,j))))return n;}
+  return 38;
 }
-const JANELA_PEND=48*3600e3; // aviso aparece 48 h antes do início e some quando o jogo começa
-function pendentesAnteriores(){ // jogos de rodadas anteriores à atual que ainda não aconteceram e começam em até 48 h
-  const cur=currentRound(), now=Date.now(), out=[];
+function jogosAtrasados(){ const cur=currentRound(), now=Date.now(), L=[];
   for(let n=1;n<cur;n++){ const r=S.rod[n]; if(!r) continue;
-    r.jogos.forEach((j,i)=>{ if(played(j)||j.res==="Adiado") return; const k=kickoff(j); if(!k) return;
-      const t=k.getTime(); if(t>now&&t-now<=JANELA_PEND) out.push({n,i,j,t}); }); }
-  return out.sort((a,b)=>a.t-b.t);
-}
-function avisoPendentes(){
-  const pend=pendentesAnteriores().filter(p=>p.n!==S.round); const cur=currentRound();
-  let h="";
-  if(pend.length){
-    h+=`<div class="notice warn" role="status"><b>Atenção:</b> ${pend.length===1?"há 1 jogo":"há "+pend.length+" jogos"} de rodada anterior que ainda não ${pend.length===1?"aconteceu":"aconteceram"}. Faça seu palpite antes do início:
-      <div class="pendl">${pend.map(p=>`<div class="pend"><span><b>${esc(p.j.m)}</b> x <b>${esc(p.j.v)}</b><span class="muted"> · ${p.n}ª rodada · ${fmtWhen(p.j)}</span></span><button class="btn small primary" data-goto="${p.n}-${p.i}">Ir para o jogo</button></div>`).join("")}</div></div>`;
-  }
-  if(S.round!==cur) h+=`<p class="sub" style="margin:10px 0 0"><button class="btn small" data-goto="${cur}">← Voltar para a rodada em andamento (${cur}ª)</button></p>`;
-  return h;
-}
+    r.jogos.forEach((j,i)=>{ if(played(j)) return; if(!(atrasado(n,j)||kickoff(j))) return; if(!locked(j)) L.push({n,i,j}); }); }
+  return L; }
+function atrasadosBox(){ const me=parts().find(p=>p.slug===mySlug()); const L=jogosAtrasados().filter(x=>!me||activeIn(me,x.n)); const cur=currentRound(); let h="";
+  L.filter(x=>x.n!==S.round).forEach(x=>{ const qd=(x.j.res==="Adiado"&&!x.j.remarcado)?"nova data a definir":fmtWhen(x.j); h+=`<button class="btn atraso" data-goround="${x.n}">⏰ Jogo adiado da ${x.n}ª rodada: <b>${esc(x.j.m)} x ${esc(x.j.v)}</b> · ${qd} · palpitar</button>`; });
+  if(S.round<cur&&!S.roundAuto) h+=`<button class="btn small" data-goround="auto">↩ Voltar para a rodada atual (${cur}ª)</button>`;
+  return h?`<div class="atrasos">${h}</div>`:""; }
 function lastScoredRound(C){let L=0;for(let n=1;n<=38;n++)if(C[n]&&C[n].any)L=n;return L;}
 
 /* ---------- identidade ---------- */
 function mySlug(){ return S.tokSlug; }
-function docsOf(slug){ if(slug===mySlug()) return S.own; const uid=S.verified[slug]; return uid?(S.bets[uid]||null):null; }
+function docsOf(slug){ return slug===mySlug()?S.own:null; }
 function srcDoc(n,slug){ // palpites gravados (documentos por jogo)
   const D=docsOf(slug); const r=S.rod[n]; if(!D||!r) return null; const nn="r"+String(n).padStart(2,"0");
   const pal=r.jogos.map((_,i)=>(D[nn+"-g"+i]||{}).palpite||""); const dd=D[nn+"-dobro"];
@@ -284,13 +275,17 @@ const pName=s=>(parts().find(p=>p.slug===s)||{}).nome||s;
 function typing(){const a=document.activeElement;return !!(a&&a.matches&&a.matches("#app input, #app select"));}
 document.addEventListener("focusout",()=>{setTimeout(()=>{if(S.pendingRender&&!typing()){S.pendingRender=false;render();}},150);});
 function render(force){
+  if(S.authKnown&&!S.uid){ $("#who").innerHTML=`<span class="chip">sem login</span>`; $("#app").innerHTML=vLogin(); const g=$("#glogin"); if(g) g.onclick=doLogin; return; }
+  if(S.loaded.config&&S.cfgExists===false){ $("#who").innerHTML=""; $("#app").innerHTML=vSetup(); const b=$("#doimport"); if(b) b.onclick=()=>runImport(b); const g=$("#glogin"); if(g) g.onclick=doLogin; return; }
   if(!S.loaded.config||!S.loaded.rodadas){return;}
   if(!force&&typing()){S.pendingRender=true;return;}
   if(window.matchMedia&&window.matchMedia("(max-width:520px)").matches&&!["palpitar","rodada","ranking"].includes(S.tab)) S.tab="palpitar";
   $("#loading")&&$("#loading").remove();
-  if(S.round==null) S.round=currentRound();
+  if(S.round==null||(S.roundAuto&&!(S.draft&&S.draft.dirty))){ const cr=currentRound(); if(S.round!==cr){ S.round=cr; if(!(S.draft&&S.draft.dirty)) S.draft=null; } }
   const me=mySlug();
-  $("#who").innerHTML = me ? `<span>Você é</span> <b>${esc(pName(me))}</b>` + (S.canEdit?` <span class="chip">admin</span>`:"")
+  $("#who").innerHTML = (me ? `<span>Você é</span> <b>${esc(pName(me))}</b>` : `<span class="chip">${S.badToken?"link inválido":"sem link de participante"}</span>`) + (S.canEdit?` <span class="chip">organizador</span>`:"") + ` <button class="chip" id="logout" style="border:0;color:inherit;cursor:pointer">Sair</button>`;
+  setTimeout(()=>{const lo=$("#logout"); if(lo) lo.onclick=()=>signOut(auth);},0);
+  if(false) $("#who").innerHTML = me ? `<span>Você é</span> <b>${esc(pName(me))}</b>` + (S.canEdit?` <span class="chip">admin</span>`:"")
     : (S.uid?`<span class="chip">sem link de participante</span>`:`<span class="chip">somente leitura</span>`);
   $("#tab-admin").hidden=!S.canEdit; $("#tab-res").hidden=!S.resCode;
   for(const b of document.querySelectorAll("#tabs button")) b.setAttribute("aria-selected",String(b.dataset.tab===S.tab));
@@ -307,19 +302,20 @@ function roundSelect(id){
   <span class="muted" style="font-size:13px">peso ${S.rod[S.round]?S.rod[S.round].peso.toFixed(2).replace(".",","):""}</span></div>`;
 }
 function claimBox(){
-  if(!S.uid) return `<div class="notice">Entre no claude.ai com sua conta para palpitar. Sem login você vê ranking e resultados.</div>`;
   if(mySlug()) return "";
-  if(S.badToken) return `<div class="notice warn">Este link não é válido. Use o link exclusivo que você recebeu do organizador.</div>`;
-  return `<div class="notice">Para palpitar, abra o <b>seu link exclusivo</b> (o organizador envia um para cada participante). Por este endereço você vê ranking, resultados e os palpites já revelados.</div>`;
+  const acc=S.userEmail?` (<b>${esc(S.userEmail)}</b>)`:"";
+  const sw=` <button class="btn small" data-act="switchacc">Entrar com outra conta Google</button>`;
+  if(S.badToken) return `<div class="notice warn">Este link já está vinculado a outra conta Google, diferente da que você está usando${acc}. Entre com a conta Google do primeiro acesso.${sw}<div class="sub" style="margin-top:6px">Se não lembra qual foi, peça ao organizador para liberar o link.</div></div>`;
+  return `<div class="notice">Esta conta Google${acc} ainda não está vinculada a nenhum participante. Se você já entrou antes, use a mesma conta Google do primeiro acesso.${sw}<div class="sub" style="margin-top:6px">Primeira vez? Abra o seu link exclusivo enviado pelo organizador. Sem vínculo você vê ranking, resultados e palpites já revelados.</div></div>`;
 }
 function vPalpitar(C){
   const n=S.round,r=S.rod[n]; const who=actingSlug();
-  let h=claimBox()+avisoPendentes()+`<h2>Palpites · ${n}ª rodada</h2>`+roundSelect("rsel");
+  let h=claimBox()+atrasadosBox()+`<h2>Palpites · ${n}ª rodada</h2>`+roundSelect("rsel");
   if(false) h+=`<div class="notice warn">Modo admin: lançando palpites por <b>${esc(pName(S.actAs))}</b>. Jogos já iniciados também podem ser editados. <button class="btn small" data-act="stopact">Voltar para mim</button></div>`;
   if(!who){ h+=`<p class="sub">Abra seu link exclusivo para liberar os palpites.</p>`; return h+gamesReadOnly(r); }
   const p=parts().find(x=>x.slug===who);
   if(p&&!activeIn(p,n)) return h+`<div class="notice">${esc(p.nome)} entra no bolão a partir da ${p.desde}ª rodada.</div>`;
-  if(S.hist[n]) return h+`<div class="notice">Rodada encerrada e importada da planilha. Veja os palpites de todos na aba Rodada.</div>`;
+  if(S.hist[n]&&!r.jogos.some(j=>!locked(j))) return h+`<div class="notice">Rodada encerrada e importada da planilha. Veja os palpites de todos na aba Rodada.</div>`;
   const key=n+"-"+who; const doc=srcDoc(n,who)||{};
   if(!S.draft||S.draft.key!==key) S.draft={key,palpites:(doc.palpites||[]).slice(),dobro:doc.dobro??null,dirty:false};
   const D=S.draft; const cr=C[n]&&C[n].byP[who];
@@ -329,13 +325,13 @@ function vPalpitar(C){
     const lk=locked(j)&&!adminOverride; const g=parse(D.palpites[i])||["",""]; const isD=D.dobro===i;
     const dl=dobroFechado(n);
     const pts=cr&&cr.pts?cr.pts[i]:null;
-    h+=`<div class="game ${isD?"dbl":""}${S.focusGame===n+"-"+i?" foco":""}" id="jogo-${n}-${i}">
+    h+=`<div class="game ${isD?"dbl":""}">
       <div class="t h">${esc(j.m)}</div>
       <div class="score"><input inputmode="numeric" pattern="[0-9]*" maxlength="2" id="g${i}a" data-g="${i}" data-s="0" value="${g[0]}" ${lk||S.readOnly?"disabled":""} aria-label="Gols ${esc(j.m)}"><span class="x">x</span><input inputmode="numeric" pattern="[0-9]*" maxlength="2" id="g${i}b" data-g="${i}" data-s="1" value="${g[1]}" ${lk||S.readOnly?"disabled":""} aria-label="Gols ${esc(j.v)}"></div>
       <div class="t">${esc(j.v)}</div>
       <button class="star" data-dobro="${i}" aria-pressed="${isD}" ${(lk||dl||S.readOnly)?"disabled":""} title="Jogo da rodada (dobro)">${isD?"★":"☆"}<span class="sr">${window.innerWidth<=520?(isD?" jogo da rodada":" dobrar"):""}</span></button>
-      <div class="meta"><span>${fmtWhen(j)}</span>${j.local?`<span>${esc(j.local)}</span>`:""}
-        ${played(j)?`<span>${j.aoVivo?"parcial":"resultado"} ${resTag(j)}</span>${ptsPill(pts)}`:(j.res==="Adiado"?`<span class="pill p0">adiado</span>`:(lk?`<span class="pill p0">fechado</span>`:`<span class="pill pn">aberto</span>`))}</div>
+      <div class="meta"><span>${j.res==="Adiado"&&!j.remarcado?"nova data a definir":fmtWhen(j)}</span>${j.local?`<span>${esc(j.local)}</span>`:""}
+        ${played(j)?`<span>resultado <span class="res">${esc(j.res)}</span></span>${ptsPill(pts)}`:(j.res==="Adiado"?`<span class="pill p0">adiado</span>${lk?"":` <span class="pill pn">aberto</span>`}`:(lk?`<span class="pill p0">fechado</span>`:`<span class="pill pn">aberto</span>`))}</div>
     </div>`;
   });
   h+=`</div><div class="savebar"><span id="savemsg">${S.saving?"Salvando…":(D.dirty?"Alterações não salvas":(S.saveMsg||(doc.palpites?"Palpites salvos":"Nenhum palpite salvo ainda")))}</span>
@@ -344,15 +340,15 @@ function vPalpitar(C){
 }
 function ptsPill(p){ if(p==null) return ""; const c=p===18?"p18":(p===9?"p9":(p===0?"p0":"pn")); return `<span class="pill ${c}">${p===18?"⭐ ":""}${p} pts</span>`; }
 function gamesReadOnly(r){
-  return `<div class="tw"><table><thead><tr><th>Data</th><th class="l">Jogo</th><th>Placar</th></tr></thead><tbody>${r.jogos.map(j=>`<tr><td class="muted">${fmtWhen(j)}</td><td class="l">${esc(j.m)} x ${esc(j.v)}</td><td>${played(j)?resTag(j):esc(j.res||"—")}</td></tr>`).join("")}</tbody></table></div>`;
+  return `<div class="tw"><table><thead><tr><th>Data</th><th class="l">Jogo</th><th>Placar</th></tr></thead><tbody>${r.jogos.map(j=>`<tr><td class="muted">${fmtWhen(j)}</td><td class="l">${esc(j.m)} x ${esc(j.v)}</td><td>${played(j)?`<span class="res">${esc(j.res)}</span>`:esc(j.res||"—")}</td></tr>`).join("")}</tbody></table></div>`;
 }
 function vRodada(C){
   const n=S.round,r=S.rod[n],c=C[n]; const ps=parts().filter(p=>activeIn(p,n)); const me=mySlug();
-  let h=`<h2>${n}ª rodada · todos os palpites</h2>`+roundSelect("rsel2")+updLine()+liveNote()+`<p class="sub">Palpites dos outros aparecem quando o jogo começa. ⭐ = jogo da rodada (dobro).</p>`;
+  let h=`<h2>${n}ª rodada · todos os palpites</h2>`+roundSelect("rsel2")+`<p class="sub">Palpites dos outros aparecem quando o jogo começa. ⭐ = jogo da rodada (dobro).</p>`;
   h+=`<div class="tw"><table><thead><tr><th class="l">Jogo</th><th>Placar</th>${ps.map(p=>`<th>${esc(p.nome)}</th>`).join("")}</tr></thead><tbody>`;
   r.jogos.forEach((j,i)=>{
     const show=locked(j);
-    h+=`<tr><td class="l"><b>${esc(j.m)}</b> x <b>${esc(j.v)}</b><div class="muted" style="font-size:11px">${fmtWhen(j)}</div></td><td>${played(j)?resTag(j):esc(j.res||"—")}</td>`;
+    h+=`<tr><td class="l"><b>${esc(j.m)}</b> x <b>${esc(j.v)}</b><div class="muted" style="font-size:11px">${fmtWhen(j)}</div></td><td>${played(j)?`<span class="res">${esc(j.res)}</span>`:esc(j.res||"—")}</td>`;
     for(const p of ps){ const v=c&&c.byP[p.slug]; const bet=v&&v.bets?v.bets[i]:""; const isD=v&&v.dobro===i; const pt=v&&v.pts?v.pts[i]:null;
       if(!show&&p.slug!==me){ h+=`<td><span class="hidden-bet">🔒</span></td>`; continue; }
       h+=`<td${p.slug===me?' style="background:var(--pitch-soft)"':""}><div class="cellbet"><span class="b">${isD?"⭐ ":""}${(!bet||/^pato$/i.test(bet))?(locked(j)?`<span title="Sem palpite (pato)" aria-label="Sem palpite" style="font-size:18px">🦆</span>`:"—"):esc(bet)}</span>${ptsPill(pt)}</div></td>`; }
@@ -368,15 +364,16 @@ function vRodada(C){
 function standings(C){
   const L=lastScoredRound(C); const rows=[];
   for(const p of parts()){
-    let acum=null,last=null,cheio=0,d18=0,g4=0,first=0,beta=0,rounds=0,sum=0;
+    let acum=null,last=null,cheio=0,d18=0,g4=0,first=0,beta=0,rounds=0,sum=0,pato=0,patoBeta=0;
     for(let n=1;n<=38;n++){const v=C[n]&&C[n].byP[p.slug]; if(!v) continue;
       if(v.acum!=null){acum=v.acum;} if(n===L) last=v.raw;
-      if(v.pts) v.pts.forEach((x,i)=>{ if(x==null) return; const b=(v.dobro===i)?x/2:x; if(b===9)cheio++; if(x===18)d18++; });
+      if(v.pts) v.pts.forEach((x,i)=>{ if(x==null) return; const b=(v.dobro===i)?x/2:x; if(b===9)cheio++; if(x===18)d18++;
+        const bt=(v.bets||[])[i]; if(!bt||/pato/i.test(bt)){ pato++; if(n>=(S.cfg.faseBetaDesde||30)) patoBeta++; } });
       if(v.pb&&v.pb<=4)g4++; if(v.pb===1)first++;
       if(v.raw!=null){rounds++;sum+=v.raw;}
       if(n>=(S.cfg.faseBetaDesde||30)&&v.tot!=null) beta+=v.tot;
     }
-    rows.push({p,acum:acum??0,last,cheio,d18,g4,first,beta,media:rounds?sum/rounds:0});
+    rows.push({p,acum:acum??0,last,cheio,d18,g4,first,beta,pato,patoBeta,media:rounds?sum/rounds:0});
   }
   const key=S.rankMode==="beta"?"beta":"acum";
   rows.sort((a,b)=>b[key]-a[key]||b.cheio-a.cheio);
@@ -394,24 +391,28 @@ function palpitesDe(C,p,L){
     const bet=v.bets?v.bets[i]:""; const pt=v.pts?v.pts[i]:null; const isD=v.dobro===i&&(visivel||p.slug===me);
     let cel; if(!visivel) cel=`<span class="hidden-bet" title="Revelado quando o jogo começar">🔒</span>`;
     else if(!bet||/^pato$/i.test(bet)) cel=locked(j)?`<span style="font-size:17px" title="Não palpitou">🦆</span>`:"—"; else cel=`<b>${isD?"⭐ ":""}${esc(bet)}</b>`;
-    h+=`<div class="pdi"><span class="pdj">${esc(j.m)} <span class="muted">x</span> ${esc(j.v)}</span><span class="pdr">${played(j)?resTag(j):`<span class="muted">${j.res==="Adiado"?"adiado":"—"}</span>`}</span><span class="pdb">${cel}</span><span class="pdp">${visivel?ptsPill(pt):""}</span></div>`;
+    h+=`<div class="pdi"><span class="pdj">${esc(j.m)} <span class="muted">x</span> ${esc(j.v)}</span><span class="pdr">${played(j)?`<span class="res">${esc(j.res)}</span>`:`<span class="muted">${j.res==="Adiado"?"adiado":"—"}</span>`}</span><span class="pdb">${cel}</span><span class="pdp">${visivel?ptsPill(pt):""}</span></div>`;
   });
   h+=`</div>${v.raw!=null?`<p class="sub" style="margin:8px 0 0">${v.raw} pts na rodada · ${v.tot??"—"} com peso</p>`:""}</div>`;
   return h;
 }
 function vRanking(C){
-  const {rows,L,key}=standings(C); const me=mySlug(); const top=rows[0];
-  let h=`<h2>Ranking</h2><div class="row" style="margin-top:6px"><div class="seg" role="group" aria-label="Tipo de ranking"><button data-rank="temp" aria-pressed="${S.rankMode==="temp"}">Temporada</button><button data-rank="beta" aria-pressed="${S.rankMode==="beta"}">Fase beta (desde a ${S.cfg.faseBetaDesde||30}ª)</button></div></div>`+updLine()+liveNote();
+  const st=standings(C); const {L,key}=st; const rows=st.rows.filter(r=>!r.p.teste); const tRows=st.rows.filter(r=>r.p.teste); const me=mySlug(); const top=rows[0];
+  let h=`<h2>Ranking</h2><div class="row" style="margin-top:6px"><div class="seg" role="group" aria-label="Tipo de ranking"><button data-rank="temp" aria-pressed="${S.rankMode==="temp"}">Temporada</button><button data-rank="beta" aria-pressed="${S.rankMode==="beta"}">Fase beta (desde a ${S.cfg.faseBetaDesde||30}ª)</button></div></div>`;
   const tot18=rows.reduce((a,r)=>a+r.d18,0), totC=rows.reduce((a,r)=>a+r.cheio,0);
   h+=`<div class="kpis"><div class="kpi"><div class="l">Líder</div><div class="v">${esc(top.p.nome)}</div><div class="s">${fmt(top[key])} pts</div></div>
    <div class="kpi"><div class="l">Vantagem</div><div class="v">+${fmt(top[key]-(rows[1]?rows[1][key]:0))}</div><div class="s">sobre ${esc(rows[1]?rows[1].p.nome:"")}</div></div>
    <div class="kpi"><div class="l">Rodada</div><div class="v">${L}ª</div><div class="s">última com pontos</div></div>
    ${(()=>{const at=rows.filter(r=>(r.p.desde||1)<=Math.max(L,1)); const lp=at[at.length-1]; return lp?`<div class="kpi" style="border-color:var(--bill)"><div class="l">🦆 Pato</div><div class="v">${esc(lp.p.nome)}</div><div class="s">último colocado · ${fmt(lp[key])} pts</div></div>`:"";})()}
 </div>`;
-  h+=`<h3>Classificação ${S.rankMode==="beta"?"da fase beta":"geral"}</h3><div class="tw"><table><thead><tr><th>#</th><th class="l">Participante</th><th>${S.rankMode==="beta"?"Pts fase beta":"Acumulado"}</th><th>Dif.</th><th>Últ. rodada</th><th>Média</th><th>Cheios</th><th>⭐ 18</th><th>G4</th></tr></thead><tbody>`;
-  rows.forEach((r,i)=>{const op=S.openP===r.p.slug; h+=`<tr class="${r.p.slug===me?"me-row":""}"><td class="pos">${i+1}º</td><td class="l"><button class="pname" data-openp="${r.p.slug}" aria-expanded="${op}">${esc(r.p.nome)} <span aria-hidden="true">${op?"▴":"▾"}</span></button>${r.p.desde>1?` <span class="pill pn">desde ${r.p.desde}ª</span>`:""}</td><td><b>${fmt(r[key])}</b></td><td class="muted">${i?"-"+fmt(top[key]-r[key]):"—"}</td><td>${r.last??"—"}</td><td>${r.media.toFixed(1).replace(".",",")}</td><td>${r.cheio}</td><td>${r.d18}</td><td>${r.g4}</td></tr>`;
-    if(op) h+=`<tr class="detail"><td colspan="9" style="padding:0">${palpitesDe(C,r.p,L)}</td></tr>`;});
+  h+=`<h3>Classificação ${S.rankMode==="beta"?"da fase beta":"geral"}</h3><div class="tw"><table><thead><tr><th>#</th><th class="l">Participante</th><th>${S.rankMode==="beta"?"Pts fase beta":"Acumulado"}</th><th>Dif.</th><th>Últ. rodada</th><th>Média</th><th>Cheios</th><th>⭐ 18</th><th>G4</th><th title="Jogos sem palpite">🦆 Pato</th></tr></thead><tbody>`;
+  rows.forEach((r,i)=>{const op=S.openP===r.p.slug; h+=`<tr class="${r.p.slug===me?"me-row":""}"><td class="pos">${i+1}º</td><td class="l"><button class="pname" data-openp="${r.p.slug}" aria-expanded="${op}">${esc(r.p.nome)} <span aria-hidden="true">${op?"▴":"▾"}</span></button>${r.p.desde>1?` <span class="pill pn">desde ${r.p.desde}ª</span>`:""}</td><td><b>${fmt(r[key])}</b></td><td class="muted">${i?"-"+fmt(top[key]-r[key]):"—"}</td><td>${r.last??"—"}</td><td>${r.media.toFixed(1).replace(".",",")}</td><td>${r.cheio}</td><td>${r.d18}</td><td>${r.g4}</td><td>${S.rankMode==="beta"?r.patoBeta:r.pato}</td></tr>`;
+    if(op) h+=`<tr class="detail"><td colspan="10" style="padding:0">${palpitesDe(C,r.p,L)}</td></tr>`;});
   h+=`</tbody></table></div>`;
+  if(tRows.length){ h+=`<h3>Em teste (não contam no ranking em ${new Date().getFullYear()})</h3><p class="sub">${tRows.map(r=>esc(r.p.nome)).join(" e ")} testam o app e entram valendo desde a 1ª rodada do próximo campeonato.</p><div class="tw"><table><thead><tr><th class="l">Participante</th><th>Pontos (teste)</th><th>Últ. rodada</th><th>Cheios</th><th title="Jogos sem palpite">🦆 Pato</th></tr></thead><tbody>`;
+    tRows.forEach(r=>{const op=S.openP===r.p.slug; h+=`<tr class="${r.p.slug===me?"me-row":""}"><td class="l"><button class="pname" data-openp="${r.p.slug}" aria-expanded="${op}">${esc(r.p.nome)} <span aria-hidden="true">${op?"▴":"▾"}</span></button> <span class="pill pn">teste</span></td><td><b>${fmt(r[key])}</b></td><td>${r.last??"—"}</td><td>${r.cheio}</td><td>${r.pato}</td></tr>`;
+      if(op) h+=`<tr class="detail"><td colspan="5" style="padding:0">${palpitesDe(C,r.p,L)}</td></tr>`;});
+    h+=`</tbody></table></div>`; }
   // Gre-Nal
   const avg=a=>{const v=a.map(s=>(rows.find(r=>r.p.slug===s)||{}).acum||0);return v.length?v.reduce((x,y)=>x+y,0)/v.length:0;};
   const gm=avg(S.cfg.gremistas||[]),cm=avg(S.cfg.colorados||[]);
@@ -428,7 +429,7 @@ function teamStyle(){
   parts().forEach((p,k)=>{ if(!m[p.slug]) m[p.slug]={c:COLORS[k%COLORS.length]}; }); return m;
 }
 function bump(C){
-  const ps=parts(); const N=ps.length; const W=900,Hh=340,l=34,rgt=96,t=14,b=28; const iw=W-l-rgt, ih=Hh-t-b;
+  const ps=oficiais(); const N=ps.length; const W=900,Hh=340,l=34,rgt=96,t=14,b=28; const iw=W-l-rgt, ih=Hh-t-b;
   const x=n=>l+(n-1)*iw/37, y=pos=>t+(pos-1)*ih/Math.max(N-1,1); const ST=teamStyle();
   let g=`<svg viewBox="0 0 ${W} ${Hh}" width="100%" role="img" aria-label="Colocação de cada participante por rodada; da metade da tabela para baixo o marcador é um pato">`;
   for(let pos=1;pos<=N;pos++) g+=`<line x1="${l}" x2="${l+iw}" y1="${y(pos)}" y2="${y(pos)}" stroke="var(--line)" stroke-width="1"/><text x="${l-8}" y="${y(pos)+4}" text-anchor="end" font-size="11">${pos}º</text>`;
@@ -458,7 +459,7 @@ function bump(C){
 }
 function brTable(){
   const T={}; const add=(t)=>T[t]||(T[t]={t,j:0,v:0,e:0,d:0,gp:0,gc:0});
-  for(let n=1;n<=38;n++){const r=S.rod[n]; if(!r) continue; for(const j of r.jogos){ add(j.m);add(j.v); const s=j.aoVivo?null:parse(j.res); if(!s) continue;
+  for(let n=1;n<=38;n++){const r=S.rod[n]; if(!r) continue; for(const j of r.jogos){ add(j.m);add(j.v); const s=parse(j.res); if(!s) continue;
     const a=T[j.m],b=T[j.v]; a.j++;b.j++; a.gp+=s[0];a.gc+=s[1];b.gp+=s[1];b.gc+=s[0];
     if(s[0]>s[1]){a.v++;b.d++;}else if(s[0]<s[1]){b.v++;a.d++;}else{a.e++;b.e++;} }}
   const rows=Object.values(T).map(x=>({...x,p:x.v*3+x.e,sg:x.gp-x.gc}));
@@ -486,186 +487,175 @@ function vRegras(){
   <tr><td class="l">⭐ Jogo da rodada</td><td>pontos em dobro (cheio = <span class="pill p18">18 pts</span>)</td></tr>
   </tbody></table></div>
   <h3>Peso da rodada</h3><p>Pontuação com peso = pontos × (1 + peso), arredondada para baixo. O peso sobe 0,05 a cada rodada (38ª = 1,85).</p>
-  <h3>Prazos e sigilo</h3><p>Cada palpite fecha no horário de início do jogo. O jogo da rodada fecha no início do primeiro jogo da rodada. O app só mostra os palpites de cada jogo a partir do horário de início, para todos ao mesmo tempo. Cada participante é identificado por uma assinatura digital gerada pelo seu link exclusivo.</p><h3>Resultados</h3><p>Os placares oficiais são buscados automaticamente na internet após cada jogo. Correções entram por um código de resultados, e o placar oficial sempre prevalece.</p><p>Durante os jogos (do horário de início até o placar final), o placar parcial é atualizado a cada 30 minutos (marcado <span class="pill live">ao vivo</span>) e já entra na pontuação e no ranking, de forma provisória, até sair o placar final.</p>
+  <h3>Prazos e sigilo</h3><p>Cada palpite fecha no horário de início do jogo. O jogo da rodada fecha no início do primeiro jogo da rodada. O servidor do bolão só aceita palpites antes do início de cada jogo e só libera os palpites dos outros depois do início, para todos ao mesmo tempo. Nem o organizador consegue ver antes.</p><h3>Resultados</h3><p>Os placares são lançados por quem tem o código de resultados e aparecem na hora para todos.</p>
   <h3>Beta</h3><p>Esta é a versão de testes até o próximo ano. Dois participantes entram a partir da 30ª rodada; o ranking “Fase beta” compara todos a partir dela. Rodadas 1 a 28 vieram da planilha oficial.</p></div>
   <h3>Lançar resultados</h3><div class="card"><p class="sub" style="margin-top:0">Área do responsável pelos resultados.</p><div class="row"><input type="password" id="rescode" placeholder="Código de resultados" style="padding:8px;border-radius:8px;border:1px solid var(--line);background:var(--surface2);color:var(--fg)" aria-label="Código de resultados"><button class="btn" data-act="unlockres">Entrar</button><span id="rcmsg" class="muted"></span></div></div>`;
 }
 function vAdmin(C){
   if(!S.canEdit) return `<div class="notice">Somente o organizador acessa esta área.</div>`;
-  let h=`<h2>Organização</h2><div class="notice">Os palpites de cada jogo aparecem para todos no horário de início, direto no app. Os placares oficiais são lançados por uma <b>tarefa automática</b> (somente durante os jogos: começa no horário de início, atualiza a cada 30 minutos e para após o placar final, voltando no início do próximo jogo). Correções de placar entram pelo <b>código de resultados</b>, entregue a uma pessoa de confiança.</div>`;
-  h+=`<h3>Link geral do app</h3><p class="sub">Endereço do Bolão dos Patos para divulgar. Quem abre por ele vê ranking e resultados; para palpitar, cada um usa o seu link exclusivo (abaixo).</p><div class="row adm"><input type="text" readonly class="wide" style="width:min(100%,360px)" value="${esc(BASE_URL)}" aria-label="Link geral"><button class="btn small" data-copy="${esc(BASE_URL)}">Copiar</button></div>`;
-  { const ac=Object.entries(S.acessos).sort((a,b)=>String(b[1].primeiro||"").localeCompare(String(a[1].primeiro||"")));
-    const slugOf=uid=>{ for(const [sl,u] of Object.entries(S.verified)) if(u===uid) return sl; return null; };
-    const dt=t=>t?new Date(t).toLocaleString("pt-BR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit",timeZone:"America/Sao_Paulo"}):"—";
-    h+=`<h3>Quem já abriu o app (${ac.length})</h3><p class="sub">Registrado quando a pessoa abre o app logada, pelo link geral ou pelo exclusivo.</p>`;
-    h+= ac.length?`<div class="tw adm"><table><thead><tr><th class="l">Conta</th><th class="l">Participante</th><th>Primeiro acesso</th><th>Último acesso</th></tr></thead><tbody>${ac.map(([uid,a])=>{const sl=slugOf(uid); return `<tr><td class="l" data-uidname="${esc(uid)}">…</td><td class="l">${sl?`<span class='pill p9'>${esc(pName(sl))}</span>`:"<span class='pill p0'>sem link exclusivo</span>"}</td><td>${dt(a.primeiro)}</td><td>${dt(a.ultimo)}</td></tr>`;}).join("")}</tbody></table></div>`:`<div class="notice">Ninguém abriu o app ainda (os acessos passam a ser registrados a partir desta versão).</div>`; }
-  h+=`<h3>Links exclusivos dos participantes</h3><p class="sub">Envie cada link só para a pessoa certa. Só por ele dá para palpitar.</p><div class="tw adm"><table><thead><tr><th class="l">Nome</th><th>Desde</th><th class="l lk">Link</th><th class="l">Situação</th><th></th></tr></thead><tbody>`;
-  parts().forEach(p=>{const tk=S.tokens&&S.tokens[p.slug]; const link=tk?BASE_URL+"#"+tk:""; const ok=!!S.verified[p.slug];
-    h+=`<tr><td class="l"><b>${esc(p.nome)}</b></td><td>${p.desde}ª</td><td class="l lk">${tk?`<input type="text" class="wide" style="width:240px" readonly value="${esc(link)}" aria-label="Link de ${esc(p.nome)}">`:"<span class='muted'>—</span>"}</td><td class="l">${ok?"<span class='pill p9'>já entrou</span>":"<span class='pill p0'>ainda não abriu</span>"}</td><td>${tk?`<button class="btn small" data-copy="${esc(link)}">Copiar</button>`:""}</td></tr>`;});
+  let h=`<h2>Organização</h2><div class="notice">O servidor do bolão garante as regras: cada palpite só pode ser gravado antes do início do jogo e só pode ser lido pelos outros depois do início. Nem o organizador vê palpites antes. Placares entram por quem tem o <b>código de resultados</b>.</div>`;
+  h+=`<h3>Links exclusivos dos participantes</h3><p class="sub">Envie cada link só para a pessoa certa. No primeiro acesso, o link fica preso à conta Google de quem abriu; depois disso a pessoa entra só com essa conta Google, com ou sem o link. Se alguém vinculou a conta errada, use <b>Liberar</b> e mande o link de novo.</p><div class="tw adm"><table><thead><tr><th class="l">Nome</th><th>Desde</th><th class="l lk">Link</th><th class="l">Situação</th><th></th></tr></thead><tbody>`;
+  parts().forEach(p=>{const tk=S.tokens&&S.tokens[p.slug]; const link=tk?BASE_URL+"#"+tk:""; const v=S.verified[p.slug]; const ok=!!v;
+    h+=`<tr><td class="l"><b>${esc(p.nome)}</b></td><td>${p.desde}ª</td><td class="l lk">${tk?`<input type="text" class="wide" style="width:240px" readonly value="${esc(link)}" aria-label="Link de ${esc(p.nome)}">`:"<span class='muted'>—</span>"}</td><td class="l">${ok?`<span class='pill p9'>já entrou</span>${v.email?`<div class="muted" style="font-size:12px">${esc(v.email)}</div>`:""}`:"<span class='pill p0'>ainda não abriu</span>"}</td><td>${tk?`<button class="btn small" data-copy="${esc(link)}">Copiar</button>`:""}${ok?` <button class="btn small" data-unbind="${esc(p.slug)}" title="Solta o link da conta Google atual para ser aberto de novo">Liberar</button>`:""}</td></tr>`;});
   h+=`</tbody></table></div>`;
-  if(S.secret) h+=`<h3>Código de resultados</h3><p class="sub">Entregue a quem vai corrigir placares quando a busca automática falhar. A pessoa digita o código na aba Regras → “Lançar resultados”. O placar oficial encontrado na internet sempre tem prioridade.</p><div class="row"><input type="text" readonly class="wide" style="width:220px" value="${esc(S.secret)}" aria-label="Código de resultados"><button class="btn small" data-copy="${esc(S.secret)}">Copiar</button></div>`;
+  if(S.secret) h+=`<h3>Código de resultados</h3><p class="sub">Entregue a quem vai lançar os placares. A pessoa digita o código na aba Regras → “Lançar resultados” (no computador).</p><div class="row"><input type="text" readonly class="wide" style="width:220px" value="${esc(S.secret)}" aria-label="Código de resultados"><button class="btn small" data-copy="${esc(S.secret)}">Copiar</button></div>`;
   return h;
 }
 function vResultados(){
   if(!S.resCode) return `<div class="notice">Digite o código de resultados na aba Regras para liberar esta área.</div>`;
-  const n=S.round,r=S.rod[n]; const nn="r"+String(n).padStart(2,"0"); const env=(S.envio&&S.envio.envios)||{};
-  let h=`<h2>Lançar resultados · ${n}ª rodada</h2>`+roundSelect("rsel4")+`<p class="sub">Informe o placar final (ex.: 2x1) ou “Adiado”. A tarefa automática confere com o placar oficial na internet e publica na próxima atualização; se houver divergência, vale o oficial.</p><div class="tw adm"><table><thead><tr><th class="l">Jogo</th><th>Oficial</th><th>Seu envio</th></tr></thead><tbody>`;
-  r.jogos.forEach((j,i)=>{const k=nn+"-g"+i; const e=env[k]; h+=`<tr><td class="l"><b>${esc(j.m)}</b> x <b>${esc(j.v)}</b><div class="muted" style="font-size:11px">${fmtWhen(j)}</div></td><td>${j.res&&!j.aoVivo?`<span class="res">${esc(j.res)}</span>`:"—"}</td><td>${j.res&&!j.aoVivo?"":`<input type="text" id="rv${i}" value="${esc(e?e.res:"")}" placeholder="0x0" aria-label="Resultado">`}</td></tr>`;});
-  h+=`</tbody></table></div><div class="row" style="margin-top:10px"><button class="btn primary" data-act="sendres">Enviar resultados</button><span id="resmsg" class="muted"></span></div>`;
+  const n=S.round,r=S.rod[n];
+  let h=`<h2>Lançar resultados · ${n}ª rodada</h2>`+roundSelect("rsel4")+`<p class="sub">Informe o placar final (ex.: 2x1, mandante primeiro) ou “Adiado”. Publica na hora para todos.</p><div class="tw adm"><table><thead><tr><th class="l">Jogo</th><th>Oficial</th><th>Novo placar</th></tr></thead><tbody>`;
+  r.jogos.forEach((j,i)=>{ h+=`<tr><td class="l"><b>${esc(j.m)}</b> x <b>${esc(j.v)}</b><div class="muted" style="font-size:11px">${fmtWhen(j)}</div></td><td>${j.res?`<span class="res">${esc(j.res)}</span>`:"—"}</td><td><input type="text" id="rv${i}" value="" placeholder="${j.res?"corrigir":"0x0"}" aria-label="Resultado"></td></tr>`;});
+  h+=`</tbody></table></div><div class="row" style="margin-top:10px"><button class="btn primary" data-act="sendres">Publicar placares</button><span id="resmsg" class="muted"></span></div>`;
   return h;
 }
 /* ---------- eventos ---------- */
 function bind(app,C){
-  for(const id of ["rsel","rsel2","rsel3"]){const s=$("#"+id,app); if(s) s.onchange=()=>{S.round=+s.value;S.draft=null;render(true);};}
-  app.querySelectorAll("[data-act=prev]").forEach(b=>b.onclick=()=>{if(S.round>1){S.round--;S.draft=null;render(true);}});
-  app.querySelectorAll("[data-act=next]").forEach(b=>b.onclick=()=>{if(S.round<38){S.round++;S.draft=null;render(true);}});
+  for(const id of ["rsel","rsel2","rsel3"]){const s=$("#"+id,app); if(s) s.onchange=()=>{S.roundAuto=false;S.round=+s.value;S.draft=null;render(true);};}
+  app.querySelectorAll("[data-act=prev]").forEach(b=>b.onclick=()=>{if(S.round>1){S.roundAuto=false;S.round--;S.draft=null;render(true);}});
+  app.querySelectorAll("[data-goround]").forEach(b=>b.onclick=()=>{const g=b.dataset.goround; if(g==="auto"){S.roundAuto=true;S.round=currentRound();}else{S.roundAuto=false;S.round=+g;} S.draft=null; S.tab="palpitar"; render(true); window.scrollTo(0,0);});
+  app.querySelectorAll("[data-act=next]").forEach(b=>b.onclick=()=>{if(S.round<38){S.roundAuto=false;S.round++;S.draft=null;render(true);}});
   app.querySelectorAll("input[data-g]").forEach(inp=>{inp.oninput=()=>{
     inp.value=inp.value.replace(/\D/g,"").slice(0,2); const i=+inp.dataset.g;
     const a=$("#g"+i+"a").value,b=$("#g"+i+"b").value; S.draft.palpites[i]=(a!==""&&b!=="")?(a+"x"+b):""; markDirty();};});
   app.querySelectorAll("[data-dobro]").forEach(b=>b.onclick=()=>{const i=+b.dataset.dobro; S.draft.dobro=(S.draft.dobro===i?null:i); S.draft.dirty=true; render(true); scheduleSave();});
-  app.querySelectorAll("[data-goto]").forEach(b=>b.onclick=()=>{ const [rn,gi]=b.dataset.goto.split("-");
-    if(S.draft&&S.draft.dirty) savePalp();
-    S.round=+rn; S.draft=null; S.tab="palpitar"; S.focusGame=gi!=null?rn+"-"+gi:null; render(true);
-    const el=gi!=null?document.getElementById("jogo-"+rn+"-"+gi):null;
-    if(el){ el.scrollIntoView({behavior:"smooth",block:"center"}); const inp=el.querySelector("input:not([disabled])"); if(inp) setTimeout(()=>inp.focus({preventScroll:true}),400);
-      setTimeout(()=>{S.focusGame=null; el.classList.remove("foco");},4000); } else window.scrollTo(0,0); });
   const sv=app.querySelector("[data-act=save]"); if(sv) sv.onclick=()=>savePalp();
   const st=app.querySelector("[data-act=stopact]"); if(st) st.onclick=()=>{S.actAs=null;S.draft=null;render();};
   app.querySelectorAll("[data-openp]").forEach(b=>b.onclick=()=>{const sl=b.dataset.openp; if(S.openP===sl){S.openP=null;}else{S.openP=sl;S.openRound=null;} render(true);});
   app.querySelectorAll("[data-pr]").forEach(b=>b.onclick=()=>{S.openRound=Math.min(38,Math.max(1,(S.openRound||1)+(+b.dataset.pr)));render(true);});
   app.querySelectorAll("[data-rank]").forEach(b=>b.onclick=()=>{S.rankMode=b.dataset.rank;render();});
   app.querySelectorAll("[data-hide]").forEach(b=>b.onclick=()=>{S.hide[b.dataset.hide]=!S.hide[b.dataset.hide];render();});
-  const ur=app.querySelector("[data-act=unlockres]"); if(ur) ur.onclick=async()=>{ const c=$("#rescode").value.trim(); if(c&&S.cfg.resHash&&await sha(c)===S.cfg.resHash){ S.resCode=c; try{localStorage.setItem("bp_rescode",c);}catch(e){} if(S.uid) S.db.doc("resultadosEnviados/"+S.uid).onSnapshot(s=>{S.envio=s.exists?s.data():null;},()=>{}); S.tab="resultados"; render(true);} else $("#rcmsg").textContent="Código inválido."; };
+  app.querySelectorAll("[data-act=switchacc]").forEach(b=>b.onclick=()=>doLogin());
+  app.querySelectorAll("[data-unbind]").forEach(b=>b.onclick=async()=>{ if(b.dataset.armed!=="1"){ b.dataset.armed="1"; b.textContent="Confirmar liberar?"; setTimeout(()=>{b.dataset.armed="";b.textContent="Liberar";},5000); return; }
+    b.disabled=true; b.textContent="Liberando…"; try{ await deleteDoc(doc(db,"vinculos",b.dataset.unbind)); }catch(e){ b.textContent="Erro"; } });
+  const ur=app.querySelector("[data-act=unlockres]"); if(ur) ur.onclick=unlockRes;
   const sres=app.querySelector("[data-act=sendres]"); if(sres) sres.onclick=sendRes;
-  const s4=$("#rsel4",app); if(s4) s4.onchange=()=>{S.round=+s4.value;render(true);};
+  const s4=$("#rsel4",app); if(s4) s4.onchange=()=>{S.roundAuto=false;S.round=+s4.value;render(true);};
   const sr=app.querySelector("[data-act=saveround]"); if(sr) sr.onclick=saveRound;
   const sa=app.querySelector("[data-act=saveajus]"); if(sa) sa.onclick=saveAjus;
   app.querySelectorAll("[data-actas]").forEach(b=>b.onclick=()=>{S.actAs=b.dataset.actas;S.draft=null;S.tab="palpitar";render();});
   app.querySelectorAll("[data-copy]").forEach(b=>b.onclick=async()=>{const t=b.dataset.copy; try{await navigator.clipboard.writeText(t);b.textContent="Copiado ✓";}catch(e){const i=b.parentElement.querySelector("input");if(i){i.focus();i.select();}b.textContent="Selecione e copie";}});
-  const cells=[...app.querySelectorAll("[data-uidname]")].filter(c=>c.dataset.uidname);
-  if(cells.length&&S.user&&S.user.profiles){ S.user.profiles(cells.map(c=>c.dataset.uidname)).then(ps=>{for(const c of cells){const n=ps[c.dataset.uidname]&&ps[c.dataset.uidname].name; c.textContent=n||"vinculada";}}).catch(()=>{}); }
 }
 function markDirty(){S.draft.dirty=true;const m=$("#savemsg");if(m)m.textContent="Alterações não salvas";scheduleSave();}
 function scheduleSave(){clearTimeout(S.saveTimer);S.saveTimer=setTimeout(savePalp,1500);}
+document.getElementById("tabs").addEventListener("click",e=>{const b=e.target.closest("button[data-tab]");if(!b)return;S.tab=b.dataset.tab;try{localStorage.setItem("bp_tab",S.tab);}catch(_){}render(true);window.scrollTo(0,0);});
+
+/* ---------- Firebase: login, vínculo, palpites e revelação ---------- */
+const BASE_URL=location.origin+location.pathname;
+const nnOf=n=>"r"+String(n).padStart(2,"0");
+function linkToken(){ let t=""; if(location.hash&&/^#[A-Za-z0-9-]{12,}$/.test(location.hash)) t=location.hash.slice(1);
+  if(t){try{localStorage.setItem("bp_token",t);}catch(e){}} else {try{t=localStorage.getItem("bp_token")||"";}catch(e){}} return t; }
+function rand(n){ const a="ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789"; const b=crypto.getRandomValues(new Uint8Array(n)); return [...b].map(x=>a[x%a.length]).join(""); }
+
+async function loadIdentity(){
+  if(!S.uid) return;
+  S.badToken=false; S.userEmail=(auth.currentUser&&auth.currentUser.email)||"";
+  for(let k=0;k<3&&!S.tokSlug;k++){ try{ const qs=await getDocs(query(collection(db,"vinculos"),where("uid","==",S.uid))); qs.forEach(d=>{S.tokSlug=d.id; if(!d.data().email&&S.userEmail) updateDoc(d.ref,{email:S.userEmail}).catch(()=>{});}); break; }catch(e){ await new Promise(r=>setTimeout(r,800)); } }
+  if(!S.tokSlug){ const t=linkToken(); const slug=t?t.split("-")[0]:"";
+    if(t&&slug){ try{ await setDoc(doc(db,"vinculos",slug),{uid:S.uid,codigo:t,...(S.userEmail?{email:S.userEmail}:{}),em:serverTimestamp()}); S.tokSlug=slug; }
+      catch(e){ let mine=false; try{ const v=await getDoc(doc(db,"vinculos",slug)); mine=v.exists()&&v.data().uid===S.uid; }catch(_){}
+        if(mine) S.tokSlug=slug; else S.badToken=true; } } }
+  if(S.tokSlug){ try{localStorage.setItem("bp_token","");}catch(e){} if(location.hash&&/^#[A-Za-z0-9-]{12,}$/.test(location.hash)) history.replaceState(null,"",location.pathname); }
+  try{ S.canEdit=(await getDoc(doc(db,"admins",S.uid))).exists(); }catch(e){ S.canEdit=false; }
+  try{ S.resCode=(await getDoc(doc(db,"papeis",S.uid))).exists(); }catch(e){ S.resCode=false; }
+  if(S.tokSlug) onSnapshot(collection(db,"meus",S.uid,"p"),q=>{S.own={};q.forEach(d=>{S.own[d.id]=d.data();}); if(S.draft&&!S.draft.dirty) S.draft=null; render();},()=>{});
+  if(S.canEdit) onSnapshot(doc(db,"privado","links"),s=>{const d=s.exists()?s.data():{}; S.tokens=d.tokens||{}; S.secret=d.codigoResultados||null; render();},()=>{});
+  if(S.canEdit) onSnapshot(collection(db,"vinculos"),q=>{S.verified={};q.forEach(d=>{S.verified[d.id]=d.data();});render();},()=>{});
+  render(true);
+}
+// palpites revelados: planilha antiga < canal antigo (sportspickgame, só preenche o que está em branco) < app
+function mergeRev(id){ const m={...((S.revLegacy[id]||{}).palpites||{})}; const E=(S.ext[id]||{}).palpites||{};
+  for(const [k,v] of Object.entries(E)) if(v&&!m[k]) m[k]=v;
+  const A=S.appRev[id]; if(A) for(const [k,v] of Object.entries(A)) if(v) m[k]=v;
+  if(S.appRev[id]||S.revLegacy[id]||S.ext[id]) S.rev[id]={palpites:m}; }
+function fetchRevealed(){
+  if(!S.loaded.rodadas) return;
+  for(let n=1;n<=38;n++){ const r=S.rod[n]; if(!r) continue; const nn=nnOf(n); const H=S.hist[n];
+    r.jogos.forEach((j,i)=>{ const id=nn+"-g"+i; if(!locked(j)||S.fetched[id]) return; if(H&&parse((S.rodRaw[n]||{jogos:[]}).jogos[i]?.res)) return; S.fetched[id]=true;
+      getDocs(collection(db,"apostas",id,"p")).then(qs=>{ const m={}; qs.forEach(d=>{m[d.id]=d.data().palpite||"";}); S.appRev[id]=m; mergeRev(id); render(); })
+        .catch(()=>{ S.fetched[id]=false; }); });
+    const dk=nn+"-dobro"; if(!H&&dobroFechado(n)&&!S.fetched[dk]){ S.fetched[dk]=true;
+      getDocs(collection(db,"dobros",nn,"p")).then(qs=>{ const m={}; qs.forEach(d=>{ const v=d.data().jogo; if(v!=null) m[d.id]=v; }); S.rev[dk]={dobro:m}; render(); }).catch(()=>{ S.fetched[dk]=false; }); } }
+}
 async function savePalp(){
-  clearTimeout(S.saveTimer); const D=S.draft; if(!D||!S.db||S.saving||!S.uid) return; const who=mySlug(); if(!who) return;
-  const n=parseInt(D.key,10); const r=S.rod[n]; const nn="r"+String(n).padStart(2,"0"); const base="palpites/"+S.uid+"/r/";
-  const jobs=[];
-  r.jogos.forEach((j,i)=>{ if(locked(j)) return; const cur=(S.own[nn+"-g"+i]||{}).palpite||""; const nv=D.palpites[i]||"";
-    if(cur!==nv) jobs.push([nn+"-g"+i,{slug:who,rodada:n,jogo:i,palpite:nv}]); });
-  if(!dobroFechado(n)){ const cd=S.own[nn+"-dobro"]; const cur=cd?cd.dobro??null:null; if(cur!==D.dobro) jobs.push([nn+"-dobro",{slug:who,rodada:n,dobro:D.dobro}]); }
-  S.saving=true; const m=$("#savemsg"); if(m) m.textContent="Salvando…"; let ok=true;
-  for(const [id,data] of jobs){ try{ await S.db.doc(base+id).set(data); }catch(e){ ok=false; S.saveMsg=e&&e.code==="invalid_argument"?"Sem permissão para salvar. Peça ao organizador para liberar seu acesso.":"Não foi possível salvar agora. Tente de novo."; break; } }
-  if(ok){ D.dirty=false; S.saveMsg=(jobs.length?"Palpites salvos às ":"Nada novo para salvar · ")+new Date().toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})+" · ocultos até cada jogo começar"; }
+  clearTimeout(S.saveTimer); const D=S.draft; if(!D||S.saving||!S.uid) return; const who=mySlug(); if(!who) return;
+  const n=parseInt(D.key,10); const r=S.rod[n]; const nn=nnOf(n); const b=writeBatch(db); let count=0;
+  r.jogos.forEach((j,i)=>{ if(locked(j)) return; const id=nn+"-g"+i; const cur=(S.own[id]||{}).palpite||""; const nv=D.palpites[i]||"";
+    if(cur!==nv){ b.set(doc(db,"apostas",id,"p",who),{palpite:nv,em:serverTimestamp()}); b.set(doc(db,"meus",S.uid,"p",id),{palpite:nv}); count++; } });
+  if(!dobroFechado(n)){ const cd=S.own[nn+"-dobro"]; const cur=cd?cd.dobro??null:null;
+    if(cur!==D.dobro){ b.set(doc(db,"dobros",nn,"p",who),{jogo:D.dobro,em:serverTimestamp()}); b.set(doc(db,"meus",S.uid,"p",nn+"-dobro"),{dobro:D.dobro}); count++; } }
+  S.saving=true; const m=$("#savemsg"); if(m) m.textContent="Salvando…";
+  try{ if(count) await b.commit(); D.dirty=false;
+    S.saveMsg=(count?"Palpites salvos às ":"Nada novo para salvar · ")+new Date().toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})+" · ocultos até cada jogo começar"; }
+  catch(e){ S.saveMsg=e&&e.code==="permission-denied"?"Não foi salvo: o prazo de algum jogo já fechou. Atualize a página e confira.":"Não foi possível salvar agora. Tente de novo."; }
   S.saving=false; const m2=$("#savemsg"); if(m2) m2.textContent=S.saveMsg;
 }
 async function sendRes(){
-  const n=S.round,r=S.rod[n]; const nn="r"+String(n).padStart(2,"0"); const msg=$("#resmsg");
-  if(!S.uid){msg.textContent="Entre com sua conta para enviar.";return;}
-  const env=JSON.parse(JSON.stringify((S.envio&&S.envio.envios)||{})); let bad=false;
-  r.jogos.forEach((j,i)=>{const el=$("#rv"+i); if(!el) return; let v=el.value.trim(); if(!v) return; if(/^adiado$/i.test(v)) v="Adiado"; else if(parse(v)) v=v.replace(/\s/g,"").toLowerCase(); else {bad=true;return;} env[nn+"-g"+i]={res:v,em:new Date().toISOString()};});
+  const n=S.round,r=S.rod[n]; const nn=nnOf(n); const msg=$("#resmsg"); const jobs=[]; let bad=false;
+  r.jogos.forEach((j,i)=>{const el=$("#rv"+i); if(!el) return; let v=el.value.trim(); if(!v) return; if(/^adiado$/i.test(v)) v="Adiado"; else if(parse(v)) v=v.replace(/\s/g,"").toLowerCase(); else {bad=true;return;} jobs.push([nn+"-g"+i,{n,jogo:i,res:v,por:S.uid,em:serverTimestamp()}]);});
   if(bad){msg.textContent="Use o formato 2x1 ou Adiado.";return;}
-  msg.textContent="Enviando…";
-  try{ const proof=await sha(S.resCode+":"+S.uid); await S.db.doc("resultadosEnviados/"+S.uid).set({proof,envios:env}); msg.textContent="Enviado. A tarefa automática publica em até 1 hora."; }
-  catch(e){ msg.textContent="Não foi possível enviar ("+(e&&e.code||"erro")+")."; }
+  if(!jobs.length){msg.textContent="Nenhum placar preenchido.";return;}
+  msg.textContent="Publicando…"; const b=writeBatch(db); jobs.forEach(([id,d])=>b.set(doc(db,"resultados",id),d));
+  try{ await b.commit(); msg.textContent="Placares publicados."; }catch(e){ msg.textContent="Não foi possível publicar ("+(e&&e.code||"erro")+")."; }
 }
-async function saveRound(){
-  const n=S.round,r=S.rod[n]; const msg=$("#admmsg");
-  const jogos=r.jogos.map((j,i)=>{let res=$("#ar"+i).value.trim(); if(/^adiado$/i.test(res)) res="Adiado"; else if(res&&!parse(res)) res=j.res; else res=res.replace(/\s/g,"").toLowerCase();
-    const dt=$("#ad"+i).value; return {...j,res,quando:dt?dt+":00-03:00":null,local:$("#al"+i).value.trim()};});
-  const peso=parseFloat(String($("#apeso").value).replace(",","."))||r.peso;
-  msg.textContent="Salvando…";
-  try{await S.db.doc("rodadas/r"+String(n).padStart(2,"0")).set({n,peso,jogos}); msg.textContent="Rodada salva.";}
-  catch(e){msg.textContent="Não foi possível salvar ("+(e&&e.code||"erro")+").";}
+async function unlockRes(){
+  const c=$("#rescode").value.trim(); if(!c||!S.uid) return;
+  try{ await setDoc(doc(db,"papeis",S.uid),{codigo:c,resultados:true}); S.resCode=true; S.tab="resultados"; render(true); }
+  catch(e){ $("#rcmsg").textContent="Código inválido."; }
 }
-async function saveAjus(){
-  const n=S.round; const ps=parts().filter(p=>activeIn(p,n)); const acum={},pg={};
-  for(const p of ps){const a=$("#aa-"+p.slug).value.trim(),g=$("#ag-"+p.slug).value.trim(); if(a!=="")acum[p.slug]=+a; if(g!=="")pg[p.slug]=+g;}
-  try{await S.db.doc("ajustes/r"+String(n).padStart(2,"0")).set({n,acum,pg}); $("#admmsg").textContent="Valores oficiais salvos.";}catch(e){$("#admmsg").textContent="Erro ao salvar valores oficiais.";}
-}
-document.getElementById("tabs").addEventListener("click",e=>{const b=e.target.closest("button[data-tab]");if(!b)return;S.tab=b.dataset.tab;try{localStorage.setItem("bp_tab",S.tab);}catch(_){}render(true);window.scrollTo(0,0);});
-
-/* ---------- links, verificação e revelação ---------- */
-const BASE_URL=location.origin+location.pathname;
-async function sha(t){const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(t));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("");}
-function linkToken(){ let t=""; if(location.hash&&/^#[A-Za-z0-9-]{12,}$/.test(location.hash)) t=location.hash.slice(1);
-  if(t){try{localStorage.setItem("bp_token",t);}catch(e){}} else {try{t=localStorage.getItem("bp_token")||"";}catch(e){}} return t; }
-const b64u=buf=>btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
-const unb64u=t=>Uint8Array.from(atob(t.replace(/-/g,"+").replace(/_/g,"/")+"===".slice((t.length+3)%4)),c=>c.charCodeAt(0));
-async function identify(){
-  if(S._idDone||!S.cfg||!S.cfg.hashes) return; S._idDone=true;
-  const t=linkToken(); if(!t) return; const h=await sha(t);
-  const slug=Object.keys(S.cfg.hashes).find(k=>S.cfg.hashes[k]===h);
-  if(!slug){ S.badToken=true; try{localStorage.removeItem("bp_token");}catch(e){} render(); return; }
-  S.tokSlug=slug; render();
-  if(!S.uid||!S.db||!S.cfg.pubkeys||!S.cfg.pubkeys[slug]) return;
+async function runImport(btn){
+  const msg=$("#impmsg"); btn.disabled=true;
   try{
-    const dbuf=await crypto.subtle.digest("SHA-256",new TextEncoder().encode("bolao-key:"+t));
-    const pk=S.cfg.pubkeys[slug];
-    const key=await crypto.subtle.importKey("jwk",{kty:"EC",crv:"P-256",d:b64u(dbuf),x:pk.x,y:pk.y,ext:true},{name:"ECDSA",namedCurve:"P-256"},false,["sign"]);
-    const cur=await S.db.doc("membros/"+S.uid).get(); const d=cur.exists?cur.data():null;
-    if(d&&d.slug===slug&&d.sig&&await checkSig(slug,S.uid,d.sig)) return;
-    const sig=b64u(await crypto.subtle.sign({name:"ECDSA",hash:"SHA-256"},key,new TextEncoder().encode(S.uid)));
-    await S.db.doc("membros/"+S.uid).set({slug,sig,em:new Date().toISOString()});
-  }catch(e){}
+    msg.textContent="Registrando você como organizador…"; await setDoc(doc(db,"admins",S.uid),{em:serverTimestamp()});
+    msg.textContent="Lendo os dados do bolão…"; const seed=await (await fetch("seed.json",{cache:"no-store"})).json();
+    const tokens={}; seed.config.participantes.forEach(p=>{tokens[p.slug]=p.slug+"-"+rand(14);}); const code="RES-"+rand(8);
+    const ops=[]; const ts=s=>s?Timestamp.fromDate(new Date(s)):null;
+    for(const [id,r] of Object.entries(seed.rodadas)){ const n=r.n;
+      const fx=seed.config.dobroPrazo&&seed.config.dobroPrazo[n]; const ks=r.jogos.map(j=>j.quando).filter(Boolean).map(s=>new Date(s).getTime());
+      const prazo=fx?new Date(fx):(ks.length?new Date(Math.min(...ks)):null);
+      ops.push(["rodadas",id,{...r,prazoDobro:prazo?Timestamp.fromDate(prazo):null}]);
+      r.jogos.forEach((j,i)=>ops.push(["jogos",id+"-g"+i,{n,i,inicio:ts(j.quando)}])); }
+    for(const [id,h] of Object.entries(seed.historico)) ops.push(["historico",id,h]);
+    for(const [id,v] of Object.entries(seed.revelados)) ops.push(["revelados",id,v]);
+    for(const [s,t] of Object.entries(tokens)) ops.push(["convites",t,{slug:s}]);
+    ops.push(["codigosResultado",code,{em:serverTimestamp()}]);
+    ops.push(["privado","links",{tokens,codigoResultados:code}]);
+    for(let k=0;k<ops.length;k+=400){ const b=writeBatch(db); ops.slice(k,k+400).forEach(([c,id,d])=>b.set(doc(db,c,id),d)); msg.textContent=`Gravando ${Math.min(k+400,ops.length)} de ${ops.length}…`; await b.commit(); }
+    await setDoc(doc(db,"config","geral"),seed.config);
+    msg.textContent="Pronto! Bolão configurado."; S.canEdit=true; location.reload();
+  }catch(e){ msg.textContent="Erro na importação: "+(e&&e.message||e); btn.disabled=false; }
 }
-const sigCache={};
-async function checkSig(slug,uid,sig){
-  const k=slug+"|"+uid+"|"+sig; if(k in sigCache) return sigCache[k];
-  let ok=false; try{ const pk=S.cfg.pubkeys[slug];
-    const key=await crypto.subtle.importKey("jwk",{kty:"EC",crv:"P-256",x:pk.x,y:pk.y,ext:true},{name:"ECDSA",namedCurve:"P-256"},false,["verify"]);
-    ok=await crypto.subtle.verify({name:"ECDSA",hash:"SHA-256"},key,unb64u(sig),new TextEncoder().encode(uid)); }catch(e){ ok=false; }
-  return sigCache[k]=ok;
+function vSetup(){
+  if(!S.uid) return vLogin();
+  return `<h2>Configurar o bolão</h2><div class="card" style="margin-top:12px"><p>Este é o primeiro acesso. Ao continuar, sua conta vira a de <b>organizador</b> (só cuida da configuração) e o app importa as 38 rodadas, o histórico das rodadas 1 a 28 e os palpites já revelados.</p><p class="sub">Também são gerados os links exclusivos dos participantes e o código de resultados.</p><div class="row"><button class="btn primary" id="doimport">Configurar e importar dados</button><span id="impmsg" class="muted"></span></div></div>`;
 }
-async function verify(){
-  if(!S.cfg||!S.cfg.pubkeys) return; const v={};
-  for(const [uid,m] of Object.entries(S.memb)){ if(!m||!m.slug||!m.sig||!S.cfg.pubkeys[m.slug]) continue;
-    if(await checkSig(m.slug,uid,m.sig)){ if(!v[m.slug]||String(m.em)<String(v[m.slug].em)) v[m.slug]={uid,em:m.em}; } }
-  S.verified={}; for(const [sl,x] of Object.entries(v)) S.verified[sl]=x.uid;
-  for(const uid of Object.values(S.verified)) if(uid!==S.uid&&!S.subsBets[uid]){ S.subsBets[uid]=true;
-    S.db.collection("palpites/"+uid+"/r").onSnapshot(q=>{const m={};q.docs.forEach(d=>{m[d.id]=d.data();});S.bets[uid]=m;render();},()=>{}); }
-  render();
+function vLogin(){
+  return `<h2>Bem-vindo ao Bolão dos Patos 🦆</h2><p class="sub">Entre com sua conta Google para ver o ranking e palpitar.</p>
+  <div class="card" style="margin-top:12px;display:grid;gap:12px"><button class="btn primary" id="glogin" style="font-size:16px;padding:12px">Entrar com Google</button>
+  <p class="sub" style="margin:0"><b>Já entrou antes?</b> É só tocar em “Entrar com Google” e escolher a mesma conta do primeiro acesso.</p>
+  <p class="sub" style="margin:0"><b>Primeira vez?</b> Abra o link exclusivo que o organizador te mandou e entre com o Google. O link é seu: não repasse.</p>
+  <p class="sub" style="margin:0">Dica: no celular, use “Adicionar à tela de início” para ter o bolão como app.</p></div>`;
 }
-/* ---------- dados ---------- */
-async function start(){
-  const db=await (window.claude&&claude.use?claude.use("db"):null);
-  const user=await (window.claude&&claude.use?claude.use("user"):null);
-  if(!db){ $("#who").innerHTML=`<span class="chip">sem login</span>`;
-    $("#app").innerHTML=`<h2>Bem-vindo ao Bolão dos Patos</h2><p class="sub">Para ver o ranking e palpitar, você precisa entrar com uma conta do Claude (é gratuita).</p>
-    <div class="card" style="margin-top:12px"><h3 style="margin-top:0">Como entrar</h3>
-    <ol style="margin:0;padding-left:20px;display:grid;gap:8px">
-      <li>Crie sua conta grátis em <b>claude.ai</b> (pode usar o e-mail ou a conta Google).</li>
-      <li>Mande para o organizador o <b>e-mail</b> que você usou, para ele liberar seu acesso.</li>
-      <li>Depois de liberado, abra de novo <b>este mesmo link</b> já logado. Ele é exclusivo seu: não repasse.</li>
-    </ol></div>
-    <p class="sub" style="margin-top:12px">Já tem conta? Entre no claude.ai neste navegador e recarregue a página.</p>`; return; }
-  S.db=db; S.user=user;
-  if(user){ S.uid=await user.id(); S.canEdit=await user.isOwner(); S.canWrite=await user.can("data.write"); }
-  const err=()=>{};
-  const num=id=>parseInt(String(id).replace(/\D/g,""),10);
-  db.doc("config/geral").onSnapshot(s=>{S.cfg=s.exists?s.data():{participantes:[]};S.loaded.config=true;identify();verify();render();},err);
-  const mergeRod=()=>{ const o={}; for(const [n,r] of Object.entries(S.rodRaw)){ o[n]={...r,jogos:r.jogos.map((j,i)=>{const k="r"+String(n).padStart(2,"0")+"-g"+i; const R=S.resDocs[k]; if(R&&R.res) return {...j,res:R.res}; if(j.res) return j; const P=S.parc[k]; return P&&parse(P.res)?{...j,res:P.res,aoVivo:true,parcMin:P.min||"",parcEm:P.em||""}:j;})}; } S.rod=o; };
-  db.collection("rodadas").onSnapshot(q=>{S.rodRaw={};q.docs.forEach(d=>{S.rodRaw[num(d.id)]=d.data();});mergeRod();S.loaded.rodadas=true;
-    if(q.empty){$("#app").innerHTML=`<div class="empty">O bolão ainda não tem rodadas cadastradas.</div>`;return;} render();},err);
-  db.collection("resultados").onSnapshot(q=>{S.resDocs={};q.docs.forEach(d=>{S.resDocs[d.id]=d.data();});mergeRod();render();},err);
-  db.collection("parciais").onSnapshot(q=>{S.parc={};q.docs.forEach(d=>{S.parc[d.id]=d.data();});mergeRod();render();},err);
-  db.collection("historico").onSnapshot(q=>{S.hist={};q.docs.forEach(d=>{S.hist[num(d.id)]=d.data();});render();},err);
-  db.collection("revelados").onSnapshot(q=>{S.rev={};q.docs.forEach(d=>{S.rev[d.id]=d.data();});render();},err);
-  db.collection("membros").onSnapshot(q=>{S.memb={};q.docs.forEach(d=>{S.memb[d.id]=d.data();});verify();},err);
-  db.collection("ajustes").onSnapshot(q=>{S.ajus={};q.docs.forEach(d=>{S.ajus[num(d.id)]=d.data();});render();},err);
-  if(S.uid) db.collection("palpites/"+S.uid+"/r").onSnapshot(q=>{S.own={};q.docs.forEach(d=>{S.own[d.id]=d.data();}); if(S.draft&&!S.draft.dirty) S.draft=null; render();},err);
-  if(S.uid){ (async()=>{ try{ const ref=db.doc("acessos/"+S.uid); const cur=await ref.get(); const now=new Date().toISOString(); const d=cur.exists?cur.data():null;
-    if(!d) await ref.set({primeiro:now,ultimo:now}); else if(String(d.ultimo||"").slice(0,13)!==now.slice(0,13)) await ref.set({primeiro:d.primeiro||now,ultimo:now}); }catch(e){} })(); }
-  if(S.canEdit&&S.uid){
-    db.collection("acessos").onSnapshot(q=>{S.acessos={};q.docs.forEach(d=>{S.acessos[d.id]=d.data();});render();},err);
-    db.doc("data/users/"+S.uid+"/links").onSnapshot(s=>{S.tokens=s.exists?(s.data().tokens||{}):{};render();},err);
-    db.doc("data/users/"+S.uid+"/segredos").onSnapshot(s=>{S.secret=s.exists?s.data().codigoResultados:null;render();},err);
-  }
-  try{ const c=localStorage.getItem("bp_rescode"); if(c){ S.resCode=c; if(S.uid) db.doc("resultadosEnviados/"+S.uid).onSnapshot(s=>{S.envio=s.exists?s.data():null;},err);} }catch(e){}
-  setInterval(()=>{ if(!typing()) render(); },15000);
-}
-start();
-})();
-</script>
+async function doLogin(){ const p=new GoogleAuthProvider(); p.setCustomParameters({prompt:"select_account"}); try{ await signInWithPopup(auth,p); }catch(e){ try{ await signInWithRedirect(auth,p); }catch(_){ } } }
 
+/* ---------- dados ---------- */
+let started=false;
+function startData(){
+  if(started) return; started=true;
+  const num=id=>parseInt(String(id).replace(/\D/g,""),10); const err=()=>{};
+  onSnapshot(doc(db,"config","geral"),s=>{ S.cfgExists=s.exists(); S.cfg=s.exists()?s.data():{participantes:[]}; S.loaded.config=true; render(); },err);
+  const mergeRod=()=>{ const o={}; for(const [n,r] of Object.entries(S.rodRaw)){ o[n]={...r,jogos:r.jogos.map((j,i)=>{const id=nnOf(n)+"-g"+i; const R=S.resDocs[id]; if(R&&R.res) return {...j,res:R.res}; const X=S.ext[id]; return (!parse(j.res)&&X&&X.res&&X.final)?{...j,res:X.res}:j;})}; } S.rod=o; };
+  onSnapshot(collection(db,"rodadas"),q=>{S.rodRaw={};q.forEach(d=>{S.rodRaw[num(d.id)]=d.data();});mergeRod();S.loaded.rodadas=true;fetchRevealed();render();},err);
+  onSnapshot(collection(db,"resultados"),q=>{S.resDocs={};q.forEach(d=>{S.resDocs[d.id]=d.data();});mergeRod();fetchRevealed();render();},err);
+  onSnapshot(collection(db,"historico"),q=>{S.hist={};q.forEach(d=>{S.hist[num(d.id)]=d.data();});render();},err);
+  onSnapshot(collection(db,"revelados"),q=>{S.revLegacy={};q.forEach(d=>{S.revLegacy[d.id]=d.data(); if(d.data().palpites) mergeRev(d.id); else S.rev[d.id]=d.data();});render();},err);
+  onSnapshot(collection(db,"externos"),q=>{S.ext={};q.forEach(d=>{S.ext[d.id]=d.data(); mergeRev(d.id);});mergeRod();render();},err);
+  setInterval(()=>{ fetchRevealed(); if(!typing()) render(); },15000);
+}
+onAuthStateChanged(auth,async u=>{
+  S.uid=u?u.uid:null; S.userName=u?(u.displayName||u.email||""):""; S.tokSlug=null; S.canEdit=false; S.resCode=false; S.badToken=false;
+  startData(); if(S.uid) await loadIdentity(); S.authKnown=true; render(true);
+});
+if("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(()=>{});
+</script>
 </body></html>

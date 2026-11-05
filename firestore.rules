@@ -1,0 +1,81 @@
+rules_version = '2';
+// Bolão dos Patos — regras de segurança (sigilo e prazos garantidos pelo servidor)
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function doc(p) { return /databases/$(database)/documents/$(p); }
+    function isAdmin() { return signedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid)); }
+    function isRes() { return signedIn() && exists(/databases/$(database)/documents/papeis/$(request.auth.uid)); }
+    function isMine(slug) {
+      return signedIn() && exists(/databases/$(database)/documents/vinculos/$(slug))
+        && get(/databases/$(database)/documents/vinculos/$(slug)).data.uid == request.auth.uid;
+    }
+    function inicio(jogoId) { return get(/databases/$(database)/documents/jogos/$(jogoId)).data.inicio; }
+    // jogo começou: passou do horário marcado OU já tem resultado
+    function iniciado(jogoId) {
+      return exists(/databases/$(database)/documents/resultados/$(jogoId))
+        || (inicio(jogoId) != null && request.time >= inicio(jogoId));
+    }
+    function prazoDobro(r) { return get(/databases/$(database)/documents/rodadas/$(r)).data.prazoDobro; }
+    function dobroFechado(r) { return prazoDobro(r) != null && request.time >= prazoDobro(r); }
+
+    // Dados públicos do bolão (só o organizador altera)
+    match /config/{d}    { allow read: if true; allow write: if isAdmin(); }
+    match /rodadas/{d}   { allow read: if true; allow write: if isAdmin(); }
+    match /jogos/{d}     { allow read: if true; allow write: if isAdmin(); }
+    match /historico/{d} { allow read: if true; allow write: if isAdmin(); }
+    match /revelados/{d} { allow read: if true; allow write: if isAdmin(); }
+
+    // Placares: só quem tem o código de resultados
+    match /resultados/{jogoId} { allow read: if true; allow write: if isRes(); }
+    // Canal antigo (sportspickgame): palpites e placar do jogo, gravados pelo robô ou pelo organizador só depois do início
+    match /externos/{jogoId} { allow read: if true; allow write: if isAdmin() && iniciado(jogoId); }
+
+    // Área privada do organizador (links) e segredos que ninguém lê
+    match /privado/{d}          { allow read, write: if isAdmin(); }
+    match /convites/{c}         { allow read: if false; allow write: if isAdmin(); }
+    match /codigosResultado/{c} { allow read: if false; allow write: if isAdmin(); }
+
+    // Organizador: só pode se cadastrar antes da importação inicial
+    match /admins/{uid} {
+      allow read: if signedIn() && request.auth.uid == uid;
+      allow create: if signedIn() && request.auth.uid == uid && !exists(/databases/$(database)/documents/config/geral);
+    }
+    // Responsável pelos resultados: libera com o código
+    match /papeis/{uid} {
+      allow read: if signedIn() && request.auth.uid == uid;
+      allow create, update: if signedIn() && request.auth.uid == uid
+        && exists(/databases/$(database)/documents/codigosResultado/$(request.resource.data.codigo));
+    }
+    // Vínculo participante <-> conta Google, feito uma única vez pelo link exclusivo
+    match /vinculos/{slug} {
+      allow read: if (signedIn() && resource.data.uid == request.auth.uid) || isAdmin();
+      allow create: if signedIn() && request.resource.data.uid == request.auth.uid
+        && (!('email' in request.resource.data) || request.resource.data.email == request.auth.token.email)
+        && exists(/databases/$(database)/documents/convites/$(request.resource.data.codigo))
+        && get(/databases/$(database)/documents/convites/$(request.resource.data.codigo)).data.slug == slug;
+      allow update: if signedIn() && resource.data.uid == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['email'])
+        && request.resource.data.email == request.auth.token.email;
+      allow delete: if isAdmin();
+    }
+    // Palpites: gravação só antes do início; leitura dos outros só depois do início
+    match /apostas/{jogoId}/p/{slug} {
+      allow get: if isMine(slug) || iniciado(jogoId);
+      allow list: if iniciado(jogoId);
+      allow create, update: if isMine(slug) && !iniciado(jogoId)
+        && request.resource.data.keys().hasOnly(['palpite', 'em'])
+        && request.resource.data.palpite is string && request.resource.data.palpite.size() <= 5
+        && request.resource.data.em == request.time;
+    }
+    // Jogo da rodada (dobro): troca só até o prazo; os outros veem depois do prazo
+    match /dobros/{r}/p/{slug} {
+      allow get: if isMine(slug) || dobroFechado(r);
+      allow list: if dobroFechado(r);
+      allow create, update: if isMine(slug) && !dobroFechado(r)
+        && request.resource.data.keys().hasOnly(['jogo', 'em']) && request.resource.data.em == request.time;
+    }
+    // Cópia pessoal dos meus palpites (só eu leio)
+    match /meus/{uid}/p/{d} { allow read, write: if signedIn() && request.auth.uid == uid; }
+  }
+}
